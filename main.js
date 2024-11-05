@@ -29,33 +29,48 @@ function showResults() {
     document.getElementById('randomtext').innerText = `${currentInfo["Correct"]}/${currentInfo["Correct"] + currentInfo["Incorrect"]}. Avg: ${(currentInfo["Correct"] / (currentInfo["Correct"] + currentInfo["Incorrect"])).toFixed(3)}%`
 }
 
+function startGame() {
+    if(gameRunning) return;
+    gameRunning = true;
+    generateNewMove();
+    setTimeout(() => {
+        stopGame();
+    }, 20000)
+}
+
+function stopGame() {
+    if(!gameRunning) return;
+    showResults();
+    gameRunning = false
+}
+
 
 document.addEventListener("DOMContentLoaded", (event) => {
     document.onkeydown = async function (e) {
         e = e || window.Event;
-        // use e.keyCode
-        console.log(currentMove)
-        console.log(e.key)
-        if(possibleMoves.includes(e.key)) {
-            if(currentMove == e.key) {
-                await showInfo(e.key, true);
-                generateNewMove();
-            } else {
-                await showInfo(e.key, false);
-                generateNewMove();
+
+        if(e.key == "Enter") {
+            startGame();
+        } else if(e.key == "Escape") {
+            stopGame();
+        } else {
+            if(possibleMoves.includes(e.key)) {
+                if(currentMove == e.key) {
+                    await showInfo(e.key, true);
+                    generateNewMove();
+                } else {
+                    await showInfo(e.key, false);
+                    generateNewMove();
+                }
             }
         }
     };
 
     document.getElementById('start').onclick = () => {
-        if(gameRunning) return;
-        gameRunning = true;
-        generateNewMove();
+        startGame();
     }
 
     document.getElementById('stop').onclick = () => {
-        if(!gameRunning) return;
-        showResults();
-        gameRunning = false
+        stopGame();
     }
 });
