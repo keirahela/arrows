@@ -36,6 +36,7 @@ function startGame() {
     setTimeout(() => {
         stopGame();
     }, 20000)
+    // TODO: show timer in ui
 }
 
 function stopGame() {
