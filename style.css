@@ -38,7 +38,6 @@ body {
     border: 2px solid black;
     padding: 10px 20px 10px 20px;
     margin-top: 10%;
-    margin-bottom: 5%;
     font-size: 1.5vw;
     transition: all 200ms;
 }
@@ -98,4 +97,10 @@ section div:first-child {
 
 .stop {
     background-color: darkred;
+}
+
+.timer-box {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
 }

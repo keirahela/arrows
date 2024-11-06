@@ -10,6 +10,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let gameRunning = false;
 let currentMove = null;
 let currentInfo = { Correct: 0, Incorrect: 0 };
+let count = 20;
+let interval = null;
 
 function generateNewMove() {
     let _move = possibleTexts[getRndInteger(0, possibleTexts.length - 1)].toLowerCase()
@@ -29,40 +31,68 @@ function showResults() {
     document.getElementById('randomtext').innerText = `${currentInfo["Correct"]}/${currentInfo["Correct"] + currentInfo["Incorrect"]}. Avg: ${(currentInfo["Correct"] / (currentInfo["Correct"] + currentInfo["Incorrect"])).toFixed(3)}%`
 }
 
+function updateCounter() {
+    if(!gameRunning) {
+        clearInterval(interval);
+        return;
+    }
+    count--;
+    document.getElementById('counter').innerText = count;
+
+    if(count === 0) {
+        return stopGame();
+    }
+}
+
 function startGame() {
     if(gameRunning) return;
     gameRunning = true;
     generateNewMove();
-    setTimeout(() => {
-        stopGame();
-    }, 20000)
-    // TODO: show timer in ui
+    interval = setInterval(updateCounter, 1000);
 }
 
 function stopGame() {
     if(!gameRunning) return;
+    gameRunning = false;
     showResults();
-    gameRunning = false
+    count = 20;
+    document.getElementById('counter').innerText = count;
+}
+
+async function onKeyPress(currentKey) {
+    if(!gameRunning) return;
+    if(currentMove == currentKey) {
+        await showInfo(currentKey, true);
+        generateNewMove();
+    } else {
+        await showInfo(currentKey, false);
+        generateNewMove();
+    }
 }
 
 
 document.addEventListener("DOMContentLoaded", (event) => {
+
+    for(const child of document.getElementById('arrows').children) {
+        child.style.cursor = 'pointer';
+        child.onclick = async function() {
+            onKeyPress(child.id);
+        }
+    }
+
     document.onkeydown = async function (e) {
         e = e || window.Event;
-
+        
         if(e.key == "Enter") {
+            if(gameRunning) return;
             startGame();
         } else if(e.key == "Escape") {
+            if(!gameRunning) return;
             stopGame();
         } else {
+            if(!gameRunning) return;
             if(possibleMoves.includes(e.key)) {
-                if(currentMove == e.key) {
-                    await showInfo(e.key, true);
-                    generateNewMove();
-                } else {
-                    await showInfo(e.key, false);
-                    generateNewMove();
-                }
+                onKeyPress(e.key);
             }
         }
     };
